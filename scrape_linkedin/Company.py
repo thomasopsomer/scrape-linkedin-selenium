@@ -41,8 +41,10 @@ class Company(ResultsObject):
             dict_val = val.get_text().strip()
             overview[dict_key] = dict_val
 
+        # all_employees_links = all_or_default(
+        #     banner, '.org-company-employees-snackbar__details-highlight')
         all_employees_links = all_or_default(
-            banner, '.org-company-employees-snackbar__details-highlight')
+            banner, 'a[data-control-name="topcard_see_all_employees"]')
 
         if all_employees_links:
             all_employees_text = all_employees_links[-1].text
