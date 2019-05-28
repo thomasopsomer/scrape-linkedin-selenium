@@ -7,34 +7,32 @@ import re
 class Company(ResultsObject):
     """Linkedin User Profile Object"""
 
-    attributes = ['overview', 'jobs', 'life']
+    attributes = ["overview", "jobs", "life"]
 
     def __init__(self, overview, jobs="", life=""):
-        self.overview_soup = BeautifulSoup(overview, 'html.parser')
-        self.jobs_soup = BeautifulSoup(jobs, 'html.parser')
-        self.life_soup = BeautifulSoup(life, 'html.parser')
+        self.overview_soup = BeautifulSoup(overview, "html.parser")
+        self.jobs_soup = BeautifulSoup(jobs, "html.parser")
+        self.life_soup = BeautifulSoup(life, "html.parser")
 
     @property
     def overview(self):
         """Return dict of the overview section of the Linkedin Page"""
 
         # Banner containing company Name + Location
-        banner = one_or_default(
-            self.overview_soup, '.org-top-card')
+        banner = one_or_default(self.overview_soup, ".org-top-card")
 
         # Main container with company overview info
-        container = one_or_default(
-            self.overview_soup, '.org-grid__core-rail--wide')
+        container = one_or_default(self.overview_soup, ".org-grid__core-rail--wide")
 
         overview = {}
-        overview['description'] = container.select_one(
-            'section > p').get_text().strip()
+        overview["description"] = container.select_one("section > p").get_text().strip()
 
-        metadata_keys = container.select('.org-page-details__definition-term')
-        metadata_values = container.select(
-            '.org-page-details__definition-text')
+        metadata_keys = container.select(".org-page-details__definition-term")
+        metadata_values = container.select(".org-page-details__definition-text")
         overview.update(
-            get_info(banner, {'name': '.org-top-card-primary-content__title'}))
+            # get_info(banner, {'name': '.org-top-card-primary-content__title'}))
+            get_info(banner, {"name": ".org-top-card-summary__title"})
+        )
 
         for key, val in zip(metadata_keys, metadata_values):
             dict_key = key.get_text().strip().lower().replace(" ", "_")
@@ -44,22 +42,22 @@ class Company(ResultsObject):
         # all_employees_links = all_or_default(
         #     banner, '.org-company-employees-snackbar__details-highlight')
         all_employees_links = all_or_default(
-            banner, 'a[data-control-name="topcard_see_all_employees"]')
+            banner, 'a[data-control-name="topcard_see_all_employees"]'
+        )
 
         if all_employees_links:
             all_employees_text = all_employees_links[-1].text
         else:
-            all_employees_text = ''
+            all_employees_text = ""
 
-        match = re.search(r'((\d+?,?)+)', all_employees_text)
+        match = re.search(r"((\d+?,?)+)", all_employees_text)
         if match:
-            overview['num_employees'] = int(match.group(1).replace(',', ''))
+            overview["num_employees"] = int(match.group(1).replace(",", ""))
         else:
-            overview['num_employees'] = None
+            overview["num_employees"] = None
 
-        logo_image_tag = one_or_default(
-            banner, '.org-top-card-primary-content__logo')
-        overview['image'] = logo_image_tag['src'] if logo_image_tag else ''
+        logo_image_tag = one_or_default(banner, ".org-top-card-primary-content__logo")
+        overview["image"] = logo_image_tag["src"] if logo_image_tag else ""
 
         return overview
 
