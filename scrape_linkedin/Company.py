@@ -52,7 +52,7 @@ class Company(ResultsObject):
             dict_val = val.get_text().strip()
             if "company_size" not in dict_key:
                 overview[dict_key] = dict_val
-        print(overview)
+        # print(overview)
 
         # all_employees_links = all_or_default(
         #     banner, '.org-company-employees-snackbar__details-highlight')
