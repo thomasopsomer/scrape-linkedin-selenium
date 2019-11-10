@@ -25,10 +25,17 @@ class Company(ResultsObject):
         container = one_or_default(self.overview_soup, ".org-grid__core-rail--wide")
 
         overview = {}
-        overview["description"] = container.select_one("section > p").get_text().strip()
+        description_container = container.select_one("section > p")
+        if description_container is not None:
+            overview["description"] = container.select_one("section > p").get_text().strip()
+        else:
+            overview["description"] = None
 
-        metadata_keys = container.select(".org-page-details__definition-term")
-        metadata_values = container.select(".org-page-details__definition-text")
+        # metadata_keys = container.select(".org-page-details__definition-term")
+        # metadata_values = container.select(".org-page-details__definition-text")
+        metadata_keys = container.findAll("dt", {"class": lambda c: "org-page-details__definition-term" in c if c else False})
+        metadata_values = container.findAll("dd", {"class": lambda c: "definition-text" in c if c else False})
+
         overview.update(
             # get_info(banner, {'name': '.org-top-card-primary-content__title'}))
             get_info(banner, {"name": ".org-top-card-summary__title"})
